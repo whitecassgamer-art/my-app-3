@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Bill - หารเงินง่าย จ่ายตามจริง แฟร์กับทุกคน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#080c14',
+                        cardBg: '#0f172a',
+                        cardBorder: '#1e293b',
+                        emeraldNeon: '#10b981',
+                        cyanNeon: '#06b6d4',
+                        roseDark: '#9f1239',
+                        roseLight: '#f43f5e',
+                        emeraldDark: '#064e3b',
+                        emeraldLight: '#34d399'
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #080c14;
+            color: #f1f5f9;
+            font-family: 'Prompt', sans-serif;
+            min-height: 100vh;
+        }
+        .neon-glow-emerald {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+        }
+        .neon-border-emerald {
+            border-color: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen custom-scrollbar selection:bg-emeraldNeon selection:text-black">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Brand & Glowing Monogram Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+                <!-- Monogram "F" Icon (Glowing Split F) -->
+                <div class="relative w-10 h-10 bg-slate-900 rounded-xl border border-emerald-500/50 flex items-center justify-center neon-glow-emerald overflow-hidden group">
+                    <span class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-200">F</span>
+                    <!-- Cyan Split Slash Line -->
+                    <div class="absolute w-12 h-0.5 bg-cyan-400 rotate-45 transform shadow-[0_0_8px_#06b6d4]"></div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                        Fair Bill
+                        <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">v2.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">หารเงินง่าย จ่ายตามจริง แฟร์กับทุกคน</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="loadDemoData()" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all flex items-center gap-1.5 neon-glow-cyan">
+                    <i class="fa-solid fa-bolt text-cyan-400"></i>
+                    <span>⚡ โหลดตัวอย่าง</span>
+                </button>
+
+                <div id="user-profile-bar" class="flex items-center space-x-2">
+                    <button id="login-btn" onclick="openLoginModal()" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>เข้าสู่ระบบ</span>
+                    </button>
+                    
+                    <div id="logged-user-badge" class="hidden flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1">
+                        <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center" id="user-avatar-initial">U</div>
+                        <span class="text-xs text-white font-medium max-w-[80px] sm:max-w-[120px] truncate" id="user-display-name">ผู้ใช้งาน</span>
+                        <button onclick="logoutUser()" class="text-slate-400 hover:text-rose-400 text-xs ml-1" title="ออกจากระบบ">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Hub Quick Button -->
+                <button onclick="navigateTo('status')" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all flex items-center gap-1.5" title="ศูนย์สถานะการทำงาน">
+                    <i class="fa-solid fa-spinner text-emerald-400 animate-spin" id="header-status-spinner"></i>
+                    <span class="hidden md:inline">สถานะระบบ</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login & Register Modal Popup -->
+    <div id="login-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 transition-all">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-5">
+            <!-- Close Button -->
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-xl neon-glow-emerald">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white pt-2" id="modal-title">เข้าสู่ระบบ Fair Bill</h3>
+                <p class="text-xs text-slate-400">บันทึกประวัติบิล แชร์ยอดหาร และเข้าถึงสิทธิประโยชน์ครบครัน</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition-all">เข้าสู่ระบบ</button>
+                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all">สมัครสมาชิก</button>
+            </div>
+
+            <!-- Social Login Buttons -->
+            <div class="space-y-2">
+                <p class="text-[11px] text-slate-400 text-center uppercase tracking-wider">หรือเข้าสู่ระบบด้วย</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="simulatedSocialLogin('Google')" class="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-medium text-white flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-brands fa-google text-rose-500"></i>
+                        <span>Google</span>
+                    </button>
+                    <button onclick="simulatedSocialLogin('LINE')" class="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-medium text-white flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-brands fa-line text-emerald-400"></i>
+                        <span>LINE</span>
+                    </button>
+                    <button onclick="simulatedSocialLogin('Facebook')" class="py-2 px-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-medium text-white flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-brands fa-facebook text-cyan-400"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 my-2">
+                <hr class="border-slate-800 flex-1">
+                <span class="text-[10px] uppercase text-slate-500">อีเมล & รหัสผ่าน</span>
+                <hr class="border-slate-800 flex-1">
+            </div>
+
+            <!-- Inline Error Alert Message -->
+            <div id="auth-error-msg" class="hidden flex items-center justify-between gap-2 rounded-xl border border-rose-500/60 bg-rose-500/20 p-3.5 text-xs text-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.35)] transition-all">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400 text-sm"></i>
+                    <span id="auth-error-text" class="font-semibold text-rose-200">รหัสของคุณไม่ถูกต้อง! (รหัสทดสอบ: 123456)</span>
+                </div>
+                <button type="button" onclick="closeLoginModal(); navigateTo('login-error');" class="whitespace-nowrap text-[10px] bg-rose-500/30 text-rose-200 px-2 py-1 rounded-lg border border-rose-400/40 hover:bg-rose-500/50">รายละเอียด ➔</button>
+            </div>
+
+            <!-- Form -->
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-3">
+                <div id="name-field-container" class="hidden space-y-1">
+                    <label class="text-xs text-slate-300">ชื่อผู้ใช้งาน</label>
+                    <input type="text" id="auth-name" placeholder="เช่น สมชาย ใจดี" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs text-slate-300">อีเมล</label>
+                    <input type="email" id="auth-email" placeholder="name@example.com" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs text-slate-300">รหัสผ่าน</label>
+                        <a href="#" class="text-[11px] text-emerald-400 hover:underline">ลืมรหัสผ่าน?</a>
+                    </div>
+                    <input type="password" id="auth-password" placeholder="••••••••" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <p class="text-[10px] text-slate-400 font-mono">💡 รหัสทดสอบที่ถูกต้องคือ: <span class="text-emerald-400 font-bold">123456</span> (หากกรอกรหัสอื่นจะขึ้นเตือน)</p>
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/20">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
+
+        <!-- ================= PAGE 1: HOME DASHBOARD ================= -->
+        <section id="page-home" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-emerald-950/40 p-6 sm:p-8 border border-slate-800">
+                <div class="relative z-10 space-y-3 max-w-xl">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">จัดการการหารเงินในกลุ่มเพื่อน <span class="text-emerald-400">แบบไร้ข้อกังขา</span></h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        รองรับคนที่มาช้า คิดตาม % การเข้าร่วม และระบบคัดสรรเส้นทางการโอนเงินที่สั้นที่สุด (Net Debt Settlement) เพื่อลดจำนวนสลิป
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="createNewBill()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>สร้างบิลใหม่</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Background Accent Graphic -->
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- Bills History List -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-emerald-400"></i>
+                        รายการบิลของคุณ
+                    </h3>
+                    <span id="bill-count" class="text-xs text-slate-400">0 รายการ</span>
+                </div>
+
+                <div id="bills-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Bill cards will be injected here JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: STEP 1 - CREATE BILL & MEMBERS ================= -->
+        <section id="page-step1" class="hidden space-y-6">
+            <!-- Progress Tracker -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <button onclick="navigateTo('home')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                </button>
+                <div class="flex items-center space-x-2 text-xs text-slate-400">
+                    <span class="text-emerald-400 font-semibold">1. สร้างบิล & สมาชิก</span> &gt;
+                    <span>2. รายการค่าใช้จ่าย</span> &gt;
+                    <span>3. สรุปยอด</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i>
+                    รายละเอียดบิล & สมาชิกกลุ่ม
+                </h2>
+
+                <!-- Bill Title & Date Input -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2 space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">ชื่อกิจกรรม / บิล <span class="text-rose-400">*</span></label>
+                        <input type="text" id="bill-title-input" placeholder="เช่น กินข้าวเย็นกับเพื่อน, ทริปพัทยา" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">วันที่</label>
+                        <input type="date" id="bill-date-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                    </div>
+                </div>
+
+                <hr class="border-slate-800">
+
+                <!-- Members Section with Proportional Weight Slider -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-md font-semibold text-white">รายชื่อสมาชิก (% การเข้าร่วม / มาช้า)</h3>
+                            <p class="text-xs text-slate-400">ปรับ % สำหรับคนที่มาช้าหรือทานน้อยกว่าคนอื่น</p>
+                        </div>
+                    </div>
+
+                    <!-- Add Member Form -->
+                    <div class="flex gap-2">
+                        <input type="text" id="new-member-name" placeholder="ชื่อสมาชิก (เช่น ต้น, บอล)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                        <button onclick="addMemberFromInput()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl transition-all">
+                            <i class="fa-solid fa-user-plus"></i> เพิ่ม
+                        </button>
+                    </div>
+
+                    <!-- Member Cards List -->
+                    <div id="members-list-container" class="space-y-3 pt-2">
+                        <!-- Members injected here dynamically -->
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-slate-800">
+                    <button onclick="saveStep1AndNext()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl flex items-center gap-2 transition-all">
+                        <span>ถัดไป: เพิ่มรายการค่าใช้จ่าย</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: STEP 2 - EXPENSES & OCR ================= -->
+        <section id="page-step2" class="hidden space-y-6">
+            <!-- Progress Tracker -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <button onclick="navigateTo('step1')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                </button>
+                <div class="flex items-center space-x-2 text-xs text-slate-400">
+                    <span>1. สร้างบิล & สมาชิก</span> &gt;
+                    <span class="text-emerald-400 font-semibold">2. รายการค่าใช้จ่าย</span> &gt;
+                    <span>3. สรุปยอด</span>
+                </div>
+            </div>
+
+            <!-- OCR Scanner Area -->
+            <div class="bg-gradient-to-r from-slate-900 to-slate-900/80 border border-dashed border-cyan-500/40 rounded-2xl p-4 sm:p-5 text-center relative overflow-hidden group hover:border-cyan-400 transition-all">
+                <div class="space-y-2">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    <h3 class="text-sm font-semibold text-white">สแกนใบเสร็จอัตโนมัติ (Receipt OCR Scanner)</h3>
+                    <p class="text-xs text-slate-400">อัปโหลดรูปใบเสร็จเพื่อดึงรายการและราคาสินค้าเข้าฟอร์ม</p>
+                    <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="simulateOCR(event)">
+                    <button onclick="document.getElementById('receipt-upload').click()" class="px-4 py-1.5 text-xs bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 rounded-lg border border-cyan-500/40 transition-all">
+                        <i class="fa-solid fa-upload mr-1"></i> เลือกรูปภาพใบเสร็จ
+                    </button>
+                </div>
+                <div id="ocr-loader" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center space-y-2 z-10">
+                    <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-xs text-cyan-300">กำลังสแกนวิเคราะห์รายการใบเสร็จ...</p>
+                </div>
+            </div>
+
+            <!-- Add Expense Form -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <h3 class="text-md font-semibold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cart-plus text-emerald-400"></i>
+                    เพิ่มรายการค่าใช้จ่ายใหม่
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2 space-y-1">
+                        <label class="text-xs text-slate-400">ชื่อรายการ</label>
+                        <input type="text" id="exp-title" placeholder="เช่น ค่าอาหาร, เครื่องดื่ม, ค่าที่พัก" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400">จำนวนเงิน (บาท)</label>
+                        <input type="number" id="exp-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400">ผู้สำรองจ่ายเงินก่อน (Payer)</label>
+                        <select id="exp-payer" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400">หมวดหมู่</label>
+                        <select id="exp-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="food">🍱 อาหาร / เครื่องดื่ม</option>
+                            <option value="travel">🚗 ค่าเดินทาง / น้ำมัน</option>
+                            <option value="stay">🏨 ค่าที่พัก</option>
+                            <option value="other">🎯 อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Select Members for this specific Item -->
+                <div class="space-y-2 pt-2">
+                    <label class="text-xs text-slate-400 flex justify-between">
+                        <span>ใครร่วมหารรายการนี้บ้าง?</span>
+                        <button type="button" onclick="toggleAllExpenseMembers()" class="text-xs text-emerald-400 hover:underline">เลือกทุกคน / ยกเลิก</button>
+                    </label>
+                    <div id="exp-members-checkboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <!-- Checkboxes injected JS -->
+                    </div>
+                </div>
+
+                <button onclick="addExpenseItem()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> บันทึกรายการนี้
+                </button>
+            </div>
+
+            <!-- List of Current Expenses -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-semibold text-white">รายการที่บันทึกแล้ว</h3>
+                    <span id="total-expense-amount" class="text-sm font-bold text-emerald-400">ยอดรวม: 0 บาท</span>
+                </div>
+                <div id="expenses-list" class="space-y-2">
+                    <!-- Added expenses injected JS -->
+                </div>
+            </div>
+
+            <div class="flex justify-between pt-4 border-t border-slate-800">
+                <button onclick="navigateTo('step1')" class="px-5 py-2 bg-slate-800 text-slate-300 rounded-xl">ย้อนกลับ</button>
+                <button onclick="calculateAndGoToSummary()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl flex items-center gap-2">
+                    <span>คำนวณและดูสรุปยอด</span>
+                    <i class="fa-solid fa-chart-pie"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: STEP 3 & 4 - SUMMARY & DEBT SETTLEMENT ================= -->
+        <section id="page-summary" class="hidden space-y-6">
+            <!-- Header Nav -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <button onclick="navigateTo('step2')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> แก้ไขรายการ
+                </button>
+                <span class="text-emerald-400 font-semibold text-xs">3. ผลการสรุปยอด & การโอนเงิน</span>
+            </div>
+
+            <!-- Bill Overview Summary Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="summary-bill-title" class="text-xl font-bold text-white">ชื่อบิล</h2>
+                        <p id="summary-bill-date" class="text-xs text-slate-400">วันที่</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block">ยอดรวมกิจกรรมทั้งสิ้น</span>
+                        <span id="summary-total-amount" class="text-2xl font-black text-emerald-400">0 ฿</span>
+                    </div>
+                </div>
+
+                <!-- Checksum Validation Bar -->
+                <div id="checksum-bar" class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                    <span><strong>Checksum Verified:</strong> ยอดรวมค่าใช้จ่ายทั้งหมดตรงกับยอดที่ทุกคนต้องจ่ายรวมกัน 100%</span>
+                </div>
+            </div>
+
+            <!-- Tab Switcher: Member Breakdown vs Net Settlement Routes -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Individual Cost Breakdown -->
+                <div class="space-y-4">
+                    <h3 class="text-md font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users text-cyan-400"></i>
+                        สรุปยอดสุทธิรายบุคคล
+                    </h3>
+                    <div id="members-breakdown-container" class="space-y-3">
+                        <!-- Per-person cards injected JS -->
+                    </div>
+                </div>
+
+                <!-- Debt Settlement Routes (Greedy Optimized) -->
+                <div class="space-y-4">
+                    <h3 class="text-md font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-route text-emerald-400"></i>
+                        เส้นทางการโอนเงินที่สั้นที่สุด (Net Debt)
+                    </h3>
+                    <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
+                        <p class="text-xs text-slate-400">ระบบคัดสรรให้จับคู่โอนตรงโดยลดจำนวนสลิปให้เหลือเท่าที่จำเป็นที่สุด</p>
+                        <div id="settlement-routes-container" class="space-y-2.5">
+                            <!-- Settlement cards injected JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="pt-6 border-t border-slate-800 flex flex-wrap gap-3 justify-between">
+                <button onclick="navigateTo('home')" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm">
+                    <i class="fa-solid fa-house mr-1"></i> กลับหน้าหลัก
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="startDownloadImage()" class="px-4 py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-bold rounded-xl text-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-file-image"></i>
+                        <span>ดาวน์โหลดรูปภาพบิล</span>
+                    </button>
+                    <button onclick="saveCurrentBillToStorage()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> บันทึกบิลลงเครื่อง
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: WORK & DOWNLOAD STATUS PAGE ================= -->
+        <section id="page-status" class="hidden space-y-6">
+            <!-- Header Nav -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <button onclick="navigateTo('summary')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> กลับไปหน้าสรุป
+                </button>
+                <span class="text-cyan-400 font-semibold text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check"></i> ศูนย์สถานะการทำงาน & ดาวน์โหลด
+                </span>
+            </div>
+
+            <!-- Active Task Status Dashboard -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 space-y-6">
+                <!-- Task Title & Badge -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span id="task-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 inline-block mb-1">
+                            กำลังประมวลผล (Processing)
+                        </span>
+                        <h2 id="task-title" class="text-xl font-bold text-white">ระบบกำลังคำนวณยอดหารและเตรียมดาวน์โหลด</h2>
+                        <p id="task-subtitle" class="text-xs text-slate-400 mt-1">ประมวลผลข้อมูลการเงินและลดขั้นตอนการโอนเงิน (Net Settlement Engine)</p>
+                    </div>
+
+                    <div class="text-right">
+                        <span id="task-percent" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">0%</span>
+                    </div>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div class="space-y-2">
+                    <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
+                        <div id="status-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-300 w-0 neon-glow-emerald"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400">
+                        <span id="progress-status-text">กำลังเริ่มต้นงาน...</span>
+                        <span id="progress-time-estimate">ประมาณการอีก 2 วินาที</span>
+                    </div>
+                </div>
+
+                <!-- Step Checklist -->
+                <div class="space-y-3 pt-2">
+                    <h3 class="text-sm font-semibold text-slate-300">ขั้นตอนการดำเนินงาน:</h3>
+                    <div id="task-steps-container" class="space-y-2">
+                        <!-- Dynamic steps rendered JS -->
+                    </div>
+                </div>
+
+                <!-- Completed Download Card Action -->
+                <div id="download-action-box" class="hidden p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-3">
+                    <div class="flex items-center gap-3 text-emerald-400">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white" id="download-file-name">รูปภาพบิลพร้อมดาวน์โหลด</h4>
+                            <p class="text-xs text-slate-300">สร้างไฟล์รูปภาพ PNG สรุปยอดเรียบร้อยแล้ว สามารถกดบันทึกรูปภาพได้เลย</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 justify-end pt-2">
+                        <button onclick="triggerActualDownload()" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-download"></i>
+                            <span>บันทึกรูปภาพ (PNG)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 6: LOGIN ERROR PAGE ================= -->
+        <section id="page-login-error" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <button onclick="navigateTo('home')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                </button>
+                <span class="text-rose-400 font-semibold text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งเตือนระบบ
+                </span>
+            </div>
+
+            <div class="max-w-md mx-auto my-8 bg-slate-900 border border-rose-500/40 rounded-2xl p-6 text-center space-y-5 shadow-2xl relative overflow-hidden">
+                <!-- Glowing Accent -->
+                <div class="absolute -top-12 -left-12 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <!-- Error Icon -->
+                <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/30 rounded-2xl mx-auto flex items-center justify-center text-rose-400 text-3xl shadow-[0_0_20px_rgba(244,63,94,0.25)]">
+                    <i class="fa-solid fa-lock text-rose-500"></i>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-bold text-white">เข้าสู่ระบบไม่สำเร็จ</h2>
+                    <p class="text-sm text-rose-400 font-semibold">รหัสผ่านไม่ถูกต้อง !</p>
+                    <p class="text-xs text-slate-400 leading-relaxed pt-1">
+                        อีเมลหรือรหัสผ่านที่คุณระบุไม่ตรงกับข้อมูลในระบบ กรุณาตรวจสอบการพิมพ์ตัวอักษรเล็ก-ใหญ่ หรือลองเข้าสู่ระบบใหม่อีกครั้ง
+                    </p>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-left text-xs space-y-1">
+                    <div class="flex justify-between text-slate-400">
+                        <span>สถานะระบบ:</span>
+                        <span class="text-rose-400 font-mono font-semibold">401 Unauthorized</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>สาเหตุ:</span>
+                        <span class="text-slate-300">Invalid Password or User Identity</span>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex flex-col gap-2.5">
+                    <button onclick="openLoginModal(); navigateTo('home');" class="w-full py-2.5 bg-rose-500 hover:bg-rose-600 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>ลองใหม่อีกครั้ง</span>
+                    </button>
+                    <button onclick="navigateTo('home')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition-all">
+                        กลับสู่หน้าหลัก
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Global Application State
+        let bills = [];
+        let currentUser = null; // { name: '', email: '', provider: '' }
+        let currentBill = {
+            id: null,
+            title: '',
+            date: '',
+            members: [],
+            expenses: [],
+            settlements: [],
+            calculatedBalances: []
+        };
+
+        // Task Processing State
+        let activeTask = {
+            title: 'คำนวณและสรุปบิล',
+            subtitle: 'กำลังตรวจสอบความถูกต้องของข้อมูล',
+            type: 'calc',
+            progress: 0,
+            fileData: null,
+            fileName: '',
+            isImage: false,
+            steps: [
+                { label: 'ตรวจสอบความถูกต้องของข้อมูล Checksum', done: false },
+                { label: 'คำนวณน้ำหนักสัดส่วน (% เข้าร่วม / มาช้า)', done: false },
+                { label: 'จับคู่เส้นทางสลีปการโอนเงินที่สั้นที่สุด (Greedy Debt Settlement)', done: false },
+                { label: 'ออกรายงานสรุปและบันทึกข้อมูล', done: false }
+            ]
+        };
+
+        // Navigation Router Function
+        function navigateTo(pageId) {
+            const pages = ['home', 'step1', 'step2', 'summary', 'status', 'login-error'];
+            pages.forEach(p => {
+                const el = document.getElementById(`page-${p}`);
+                if (el) {
+                    if (p === pageId) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Page initialization hooks
+            if (pageId === 'home') {
+                renderBillsList();
+            } else if (pageId === 'step1') {
+                renderStep1Members();
+            } else if (pageId === 'step2') {
+                populateStep2Dropdowns();
+                renderExpensesList();
+            } else if (pageId === 'summary') {
+                renderSummaryPage();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Auth Modal Controls
+        let isRegisterMode = false;
+
+        function openLoginModal() {
+            const modal = document.getElementById('login-modal');
+            if (modal) modal.classList.remove('hidden');
+            const errorMsg = document.getElementById('auth-error-msg');
+            if (errorMsg) errorMsg.classList.add('hidden');
+        }
+
+        function closeLoginModal() {
+            const modal = document.getElementById('login-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function switchAuthTab(type) {
+            const loginTab = document.getElementById('tab-login');
+            const regTab = document.getElementById('tab-register');
+            const nameField = document.getElementById('name-field-container');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const modalTitle = document.getElementById('modal-title');
+            const errorMsg = document.getElementById('auth-error-msg');
+
+            if (errorMsg) errorMsg.classList.add('hidden');
+
+            if (type === 'login') {
+                isRegisterMode = false;
+                loginTab.className = "flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition-all";
+                regTab.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all";
+                nameField.classList.add('hidden');
+                submitBtn.innerText = "เข้าสู่ระบบ";
+                modalTitle.innerText = "เข้าสู่ระบบ Fair Bill";
+            } else {
+                isRegisterMode = true;
+                regTab.className = "flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition-all";
+                loginTab.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all";
+                nameField.classList.remove('hidden');
+                submitBtn.innerText = "ลงทะเบียน";
+                modalTitle.innerText = "สมัครสมาชิก Fair Bill";
+            }
+        }
+
+        function simulatedSocialLogin(provider) {
+            currentUser = {
+                name: `${provider} User`,
+                email: `user@${provider.toLowerCase()}.com`,
+                provider: provider
+            };
+            localStorage.setItem('fairbill_user', JSON.stringify(currentUser));
+            updateUserUI();
+            closeLoginModal();
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const nameInput = document.getElementById('auth-name').value;
+            const errorMsg = document.getElementById('auth-error-msg');
+            const errorText = document.getElementById('auth-error-text');
+
+            if (errorMsg) errorMsg.classList.add('hidden');
+
+            // ตรวจสอบรหัสผ่านสำหรับเข้าสู่ระบบ (รหัสผ่านที่ถูกต้องสำหรับทดสอบคือ 123456)
+            if (!isRegisterMode && password !== '123456') {
+                if (errorMsg && errorText) {
+                    errorText.innerText = 'รหัสของคุณไม่ถูกต้อง! (รหัสทดสอบ: 123456)';
+                    errorMsg.classList.remove('hidden');
+                }
+                return;
+            }
+
+            currentUser = {
+                name: (isRegisterMode ? nameInput.trim() : '') || email.split('@')[0],
+                email: email,
+                provider: 'email'
+            };
+            localStorage.setItem('fairbill_user', JSON.stringify(currentUser));
+            updateUserUI();
+            closeLoginModal();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('fairbill_user');
+            updateUserUI();
+        }
+
+        function updateUserUI() {
+            const loginBtn = document.getElementById('login-btn');
+            const userBadge = document.getElementById('logged-user-badge');
+            const displayName = document.getElementById('user-display-name');
+            const avatarInitial = document.getElementById('user-avatar-initial');
+
+            if (currentUser) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userBadge) {
+                    userBadge.classList.remove('hidden');
+                    userBadge.classList.add('flex');
+                }
+                if (displayName) displayName.innerText = currentUser.name;
+                if (avatarInitial) avatarInitial.innerText = currentUser.name.charAt(0).toUpperCase();
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (userBadge) {
+                    userBadge.classList.add('hidden');
+                    userBadge.classList.remove('flex');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function saveCurrentBillToStorage() {
+            if (!currentBill.id) currentBill.id = 'bill_' + Date.now();
+            const existingIndex = bills.findIndex(b => b.id === currentBill.id);
+            if (existingIndex >= 0) {
+                bills[existingIndex] = currentBill;
+            } else {
+                bills.unshift(currentBill);
+            }
+            saveBillsToStorage();
+            alert('บันทึกบิลลงในประวัติเรียบร้อยแล้ว');
+        }
+
+        function startDownloadImage() {
+            activeTask = {
+                title: 'กำลังสร้างรูปภาพบิลสรุปยอด (PNG)',
+                subtitle: 'เรนเดอร์กราฟิกความละเอียดสูงสำหรับการแชร์ในไลน์ / โซเชียล',
+                type: 'download',
+                progress: 0,
+                fileData: null,
+                fileName: `FairBill_${(currentBill.title || 'bill').replace(/\s+/g, '_')}.png`,
+                isImage: true,
+                steps: [
+                    { label: 'เตรียมเลย์เอาต์บิลและข้อมูลผู้ร่วมหาร', done: false },
+                    { label: 'คำนวณยอดสรุปและสัญลักษณ์ QR Payment', done: false },
+                    { label: 'เรนเดอร์ภาพความละเอียดสูง (Canvas Export Engine)', done: false },
+                    { label: 'เสร็จสิ้น ปรุงไฟล์ PNG สำหรับดาวน์โหลด', done: false }
+                ]
+            };
+
+            navigateTo('status');
+            runTaskAnimation();
+        }
+
+        function triggerActualDownload() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#080c14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(30, 30, 540, 740, 20);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 28px Prompt, sans-serif';
+            ctx.fillText('Fair Bill - สรุปยอดบิล', 60, 80);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 22px Prompt, sans-serif';
+            ctx.fillText(currentBill.title || 'ไม่ระบุชื่อบิล', 60, 120);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '14px Prompt, sans-serif';
+            ctx.fillText(`วันที่: ${currentBill.date || '-'}`, 60, 145);
+
+            const total = (currentBill.expenses || []).reduce((sum, e) => sum + Number(e.amount), 0);
+            ctx.fillStyle = '#064e3b';
+            ctx.beginPath();
+            ctx.roundRect(60, 170, 480, 70, 12);
+            ctx.fill();
+
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 16px Prompt, sans-serif';
+            ctx.fillText('ยอดรวมกิจกรรมทั้งสิ้น', 80, 200);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 26px Prompt, sans-serif';
+            ctx.fillText(`${total.toLocaleString()} บาท`, 80, 230);
+
+            ctx.fillStyle = '#06b6d4';
+            ctx.font = 'bold 18px Prompt, sans-serif';
+            ctx.fillText('สรุปรายการโอนเงิน (Net Settlement)', 60, 285);
+
+            let y = 320;
+            if (currentBill.settlements && currentBill.settlements.length > 0) {
+                currentBill.settlements.forEach((s) => {
+                    if (y < 700) {
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillRect(60, y - 20, 480, 40);
+                        ctx.fillStyle = '#f43f5e';
+                        ctx.font = 'bold 15px Prompt, sans-serif';
+                        ctx.fillText(s.debtorName, 80, y + 5);
+
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.font = '14px Prompt, sans-serif';
+                        ctx.fillText('➔ โอนให้ ➔', 220, y + 5);
+
+                        ctx.fillStyle = '#10b981';
+                        ctx.font = 'bold 15px Prompt, sans-serif';
+                        ctx.fillText(s.creditorName, 310, y + 5);
+
+                        ctx.fillStyle = '#38bdf8';
+                        ctx.font = 'bold 16px Prompt, sans-serif';
+                        ctx.fillText(`${s.amount.toLocaleString()} ฿`, 450, y + 5);
+
+                        y += 50;
+                    }
+                });
+            } else {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '14px Prompt, sans-serif';
+                ctx.fillText('ไม่มีรายการค้างชำระ', 60, y);
+            }
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = activeTask.fileName || 'FairBill_Summary.png';
+            link.href = dataUrl;
+            link.click();
+        }
+
+        function saveBillsToStorage() {
+            localStorage.setItem('fairbill_bills_v2', JSON.stringify(bills));
+        }
+
+        function loadBillsFromStorage() {
+            try {
+                const savedUser = localStorage.getItem('fairbill_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    updateUserUI();
+                }
+
+                const savedBills = localStorage.getItem('fairbill_bills_v2');
+                if (savedBills) {
+                    bills = JSON.parse(savedBills);
+                }
+            } catch (e) {
+                console.error("Storage error", e);
+            }
+        }
+
+        // Window Onload Initialization
+        window.onload = function() {
+            loadBillsFromStorage();
+            renderBillsList();
+            navigateTo('home');
+            
+            // Hide header spinner
+            const spinner = document.getElementById('header-status-spinner');
+            if (spinner) spinner.classList.remove('animate-spin');
+        };
+    </script>
+</body>
+</html>
